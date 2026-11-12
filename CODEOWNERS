@@ -1,0 +1,25 @@
+# The people who maintain each part of the codebase
+
+# Core modules - Primary maintainers
+plugin/lib/core/
+plugin/lib/core/*.js          @deepseek-ai/core-team
+
+# Plugin entry point
+plugin/lib/index.js           @deepseek-ai/plugin-team
+
+# Tests
+tests/                        @deepseek-ai/test-team
+
+# Documentation
+docs/                         @deepseek-ai/docs-team
+README.md                     @deepseek-ai/docs-team
+
+# Configuration
+package.json                  @deepseek-ai/core-team
+cordis.patch.yml              @deepseek-ai/plugin-team
+
+# Box-side verifier
+plugin/box-side/verify.mjs    @deepseek-ai/core-team
+
+# Default owner for any files not matched above
+*                             @deepseek-ai/core-team

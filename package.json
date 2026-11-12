@@ -1,0 +1,57 @@
+{
+  "name": "dsh-instabox-handoff",
+  "version": "0.1.0",
+  "description": "DeepSeek Harness plugin that hands an active conversation to a persistent InstaBox-hosted agent, routes messages while delegated, and reclaims control on demand.",
+  "keywords": [
+    "deepseek",
+    "harness",
+    "instabox",
+    "agent-handoff",
+    "conversation-transfer",
+    "cordis",
+    "plugin"
+  ],
+  "author": "InstaBox Bridge Contributors",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourorg/dsh-instabox-handoff.git",
+    "directory": "instabox-bridge"
+  },
+  "bugs": {
+    "url": "https://github.com/yourorg/dsh-instabox-handoff/issues"
+  },
+  "homepage": "https://github.com/yourorg/dsh-instabox-handoff#readme",
+  "scripts": {
+    "test": "node --test --test-isolation=none tests/unit/*.test.js tests/integration/*.test.js",
+    "test:unit": "node --test --test-isolation=none tests/unit/*.test.js",
+    "test:integration": "node --test --test-isolation=none tests/integration/*.test.js",
+    "test:e2e": "node tests/e2e/run-e2e.mjs",
+    "test:all": "node --test --test-isolation=none tests/unit/*.test.js tests/integration/*.test.js && node tests/e2e/run-e2e.mjs",
+    "lint": "echo 'No linter configured' && exit 0",
+    "verify:live": "node scripts/verify-live.mjs",
+    "prepare": "echo 'No prepare scripts needed'",
+    "build": "echo 'No build step - source is ready to use'"
+  },
+  "files": [
+    "plugin/",
+    "README.md",
+    "LICENSE"
+  ],
+  "exports": {
+    ".": "./plugin/lib/index.js",
+    "./config": "./plugin/lib/core/config.js",
+    "./state": "./plugin/lib/core/state.js",
+    "./client": "./plugin/lib/core/client.js",
+    "./router": "./plugin/lib/core/router.js",
+    "./orchestrator": "./plugin/lib/core/orchestrator.js",
+    "./adapter": "./plugin/lib/core/adapter.js",
+    "./installer": "./plugin/lib/index.js"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

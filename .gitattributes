@@ -1,0 +1,23 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Commands should be executable
+*.cmd text eol=crlf
+*.bat text eol=crlf
+*.mjs text eol=lf
+*.js text eol=lf
+*.cjs text eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+
+# Shell scripts
+*.sh text eol=lf
+
+# Normalize diff output
+*.js diff=js
+*.json diff=json

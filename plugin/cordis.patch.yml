@@ -1,0 +1,17 @@
+# dsh-plugin-instabox-bridge bundle patch.
+#
+# Inserted into a DSH profile as one row. Configure it through the profile's
+# own cordis.patch.yml (an id-targeted patch replaces this whole `config`):
+#
+#   - id: instabox-bridge
+#     config:
+#       instance:
+#         name: my-box
+#
+# `name` below is the package name. When the plugin is loaded from a local path
+# instead of an installed package, a patch overlay may name it directly,
+# e.g. `name: file:///C:/Users/me/instabox-bridge/plugin/lib/index.js`.
+- insert:
+    - id: instabox-bridge
+      name: 'dsh-plugin-instabox-bridge'
+      config: {}

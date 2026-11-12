@@ -1,0 +1,28 @@
+{
+  "name": "dsh-plugin-instabox-bridge",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Hand an active DeepSeek Harness conversation to a persistent InstaBox-hosted agent.",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "box-side",
+    "cordis.patch.yml",
+    "README.md"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "license": "MIT",
+  "peerDependencies": {
+    "@deepseek-ai/schemastery": "*"
+  }
+}
