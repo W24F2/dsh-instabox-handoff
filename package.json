@@ -19,13 +19,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourorg/dsh-instabox-handoff.git",
+    "url": "https://github.com/W24F2/dsh-instabox-handoff.git",
     "directory": "instabox-bridge"
   },
   "bugs": {
-    "url": "https://github.com/yourorg/dsh-instabox-handoff/issues"
+    "url": "https://github.com/W24F2/dsh-instabox-handoff/issues"
   },
-  "homepage": "https://github.com/yourorg/dsh-instabox-handoff#readme",
+  "homepage": "https://github.com/W24F2/dsh-instabox-handoff#readme",
   "scripts": {
     "test": "node --test --test-isolation=none tests/unit/*.test.js tests/integration/*.test.js",
     "test:unit": "node --test --test-isolation=none tests/unit/*.test.js",

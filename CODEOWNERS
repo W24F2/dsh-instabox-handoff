@@ -2,24 +2,24 @@
 
 # Core modules - Primary maintainers
 plugin/lib/core/
-plugin/lib/core/*.js          @deepseek-ai/core-team
+plugin/lib/core/*.js          @W24F2
 
 # Plugin entry point
-plugin/lib/index.js           @deepseek-ai/plugin-team
+plugin/lib/index.js           @W24F2
 
 # Tests
-tests/                        @deepseek-ai/test-team
+tests/                        @W24F2
 
 # Documentation
-docs/                         @deepseek-ai/docs-team
-README.md                     @deepseek-ai/docs-team
+docs/                         @W24F2
+README.md                     @W24F2
 
 # Configuration
-package.json                  @deepseek-ai/core-team
-cordis.patch.yml              @deepseek-ai/plugin-team
+package.json                  @W24F2
+cordis.patch.yml              @W24F2
 
 # Box-side verifier
-plugin/box-side/verify.mjs    @deepseek-ai/core-team
+plugin/box-side/verify.mjs    @W24F2
 
 # Default owner for any files not matched above
-*                             @deepseek-ai/core-team
+*                             @W24F2

@@ -9,7 +9,7 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourorg/dsh-instabox-handoff.git
+git clone https://github.com/W24F2/dsh-instabox-handoff.git
 cd dsh-instabox-handoff
 
 # Install plugin into your DSH profile
@@ -180,7 +180,7 @@ tests/
 ### Setup
 
 ```bash
-git clone https://github.com/yourorg/dsh-instabox-handoff.git
+git clone https://github.com/W24F2/dsh-instabox-handoff.git
 cd dsh-instabox-handoff
 pnpm install
 ```
@@ -270,5 +270,5 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines.
 ## Support
 
 - Open an issue on GitHub
-- Email: bridge@yourorg.example.com
+- Email: bridge@users.noreply.github.com
 - docs: [README.md](README.md)

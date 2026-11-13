@@ -13,7 +13,7 @@ Thank you for your interest in contributing to InstaBox Bridge! This document pr
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourorg/dsh-instabox-handoff.git
+git clone https://github.com/W24F2/dsh-instabox-handoff.git
 cd dsh-instabox-handoff
 
 # Install dependencies
