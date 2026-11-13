@@ -71,6 +71,9 @@ export function normalizeConfig(input = {}) {
       maxPayloadBytes: positiveInteger(handoff.maxPayloadBytes, 32 * 1024 * 1024, 'handoff.maxPayloadBytes'),
       transferImages: handoff.transferImages !== false,
       redactMessageText: handoff.redactMessageText !== false,
+      includeMemory: handoff.includeMemory !== false,
+      memoryDailyDays: positiveInteger(handoff.memoryDailyDays, 7, 'handoff.memoryDailyDays'),
+      maxMemoryBytes: positiveInteger(handoff.maxMemoryBytes, 2 * 1024 * 1024, 'handoff.maxMemoryBytes'),
       reason: optionalString(handoff.reason, 'handoff.reason'),
     },
     routing: {

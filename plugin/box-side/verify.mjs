@@ -58,6 +58,14 @@ function validate(payload) {
     if (!isObject(payload.execution)) problems.push('execution missing')
     if (!Array.isArray(payload.tools)) problems.push('tools missing')
     if (!Array.isArray(payload.attachments)) problems.push('attachments missing')
+    if (payload.memory !== undefined && payload.memory !== null) {
+      if (!isObject(payload.memory)) problems.push('memory is not an object')
+      else {
+        if (typeof payload.memory.projectKey !== 'string') problems.push('memory.projectKey missing')
+        if (!Array.isArray(payload.memory.daily)) problems.push('memory.daily missing')
+        if (typeof payload.memory.fileCount !== 'number') problems.push('memory.fileCount missing')
+      }
+    }
     if (typeof payload.digest !== 'string') problems.push('digest missing')
   }
   return problems
@@ -83,6 +91,7 @@ function main() {
   const digestMatch = expectedDigest !== null && payload.digest === expectedDigest
   const messageCount = payload?.conversation?.messages?.length ?? 0
   const attachmentCount = Array.isArray(payload?.attachments) ? payload.attachments.length : 0
+  const memoryFileCount = payload?.memory?.fileCount ?? 0
 
   const ack = {
     protocol: ACK_PROTOCOL,
@@ -92,6 +101,7 @@ function main() {
     schemaValid,
     messageCount,
     attachmentCount,
+    memoryFileCount,
     receivedAt: Date.now(),
     problems: problems.slice(0, 10),
   }

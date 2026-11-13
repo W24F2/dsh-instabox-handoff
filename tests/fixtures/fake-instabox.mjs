@@ -200,6 +200,7 @@ switch (cmd) {
         schemaValid: true,
         messageCount: payload.conversation?.messages?.length ?? 0,
         attachmentCount: payload.attachments?.length ?? 0,
+        memoryFileCount: payload.memory?.fileCount ?? 0,
         receivedAt: Date.now(),
       }
       state.files[ackPath] = Buffer.from(JSON.stringify(ack, null, 2), 'utf8').toString('base64')

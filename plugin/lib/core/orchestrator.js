@@ -12,6 +12,7 @@ import { join } from 'node:path'
 import { createPayload, assertPayload, assertAck, buildAckMarker, parseAckMarker } from './protocol.js'
 import { serializeSession, renderTranscript, joinText } from './serialize.js'
 import { createRedactor } from './redact.js'
+import { readChatMemory, summarizeMemory } from './memory.js'
 import { createState } from './state.js'
 
 const SIDE_ACK_FILE = 'ack.json'
@@ -37,16 +38,18 @@ export class Orchestrator {
    * @param {object} options.router - MessageRouter
    * @param {object} options.config - normalized config
    * @param {(sessionId: string) => Promise<{ events: any[], agentStatus?: string, inbox?: any, agent?: any }>} options.sessionReader
+   * @param {(options: object) => Promise<object>} [options.memoryReader] overrides the chat-memory reader (tests)
    * @param {string} options.sidecarSource - contents of box-side/verify.mjs
    * @param {{ info?: Function, warn?: Function, error?: Function, debug?: Function }} [options.logger]
    */
-  constructor({ client, instance, state, router, config, sessionReader, sidecarSource, logger = console }) {
+  constructor({ client, instance, state, router, config, sessionReader, memoryReader, sidecarSource, logger = console }) {
     this.client = client
     this.instance = instance
     this.state = state
     this.router = router
     this.config = config
     this.sessionReader = sessionReader
+    this.memoryReader = memoryReader ?? readChatMemory
     this.sidecarSource = sidecarSource
     this.logger = logger
   }
@@ -91,10 +94,25 @@ export class Orchestrator {
       })
       const { systemPrompt, agentConfig, tools, permissions } = await this._captureRequestContext(snapshot.agent, sessionId)
 
+      // 2b. Capture the durable chat memory tracks (project log + daily journal)
+      // alongside the conversation transcript. A missing memory directory is
+      // expected on a fresh install, so a failed read is not a handoff failure.
+      const chatMemory = this.config.handoff.includeMemory
+        ? await this.memoryReader({
+            cwd: snapshot.header?.cwd ?? process.cwd(),
+            dailyDays: this.config.handoff.memoryDailyDays,
+            maxBytes: this.config.handoff.maxMemoryBytes,
+          }).catch((error) => {
+            this.logger.warn?.(`[instabox-bridge] chat memory capture failed: ${error?.message ?? error}`)
+            return null
+          })
+        : null
+
       const redactor = createRedactor({
         env: process.env,
         extraSecrets: this.config.preferences?.secrets ?? [],
       })
+      const memoryPack = chatMemory ? redactor.redact(chatMemory) : null
       const instructions = redactor.redact({
         systemPrompt: systemPrompt ?? '',
         agentConfig,
@@ -129,6 +147,7 @@ export class Orchestrator {
         tools: toolList.value,
         permissions: permissionInfo.value,
         attachments: attachmentList.value,
+        ...(memoryPack ? { memory: memoryPack.value } : {}),
         reason: opts.reason ?? this.config.handoff.reason ?? 'explicit handoff',
         redactions: [
           ...instructions.redactions,
@@ -138,6 +157,7 @@ export class Orchestrator {
           ...toolList.redactions,
           ...permissionInfo.redactions,
           ...attachmentList.redactions,
+          ...(memoryPack ? memoryPack.redactions : []),
         ],
       })
       assertPayload(payload, { maxBytes: this.config.handoff.maxPayloadBytes })
@@ -160,6 +180,7 @@ export class Orchestrator {
         next.ackReplyConsumed = false
         next.lastRoutedKey = null
         next.routed = []
+        next.memory = chatMemory ? summarizeMemory(chatMemory) : null
         next.pending = { handoffId: payload.handoffId, startedAt: Date.now() }
         return next
       })
@@ -362,8 +383,11 @@ export class Orchestrator {
     const prompt = [
       'A DeepSeek Harness session has been handed off to you.',
       `The complete context pack is at ${remoteDir}/${SIDE_PAYLOAD_FILE}.`,
+      'It carries the full conversation transcript, the task and execution state, the tool list, and the chat memory tracks:',
+      '  - `memory.project` — the durable project memory log for the handed-off working directory,',
+      '  - `memory.daily` — the most recent daily journal entries, newest first.',
       `A verifier already confirmed the digest and schema (ack at ${remoteDir}/${SIDE_ACK_FILE}).`,
-      'Read the payload file, treat its conversation as your own history, and continue from where it left off.',
+      'Read the payload file, treat its conversation and memory tracks as your own history, and continue from where it left off.',
       'When you have ingested it, reply with exactly this marker on its own line, then a one-sentence confirmation:',
       marker,
     ].join('\n')

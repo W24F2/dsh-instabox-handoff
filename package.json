@@ -1,6 +1,6 @@
 {
   "name": "dsh-instabox-handoff",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "DeepSeek Harness plugin that hands an active conversation to a persistent InstaBox-hosted agent, routes messages while delegated, and reclaims control on demand.",
   "keywords": [
     "deepseek",

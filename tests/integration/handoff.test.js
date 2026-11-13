@@ -63,12 +63,26 @@ function makeStack(config) {
   const instance = new InstanceManager({ client, config, state })
   const router = new MessageRouter({ client, state, config })
   const sidecarSource = readFileSync(SIDECAR, 'utf8')
+  const memoryReader = async () => ({
+    capturedAt: Date.now(),
+    root: 'C:/memories',
+    projectPath: 'C:/work',
+    projectKey: 'abcdef123456',
+    project: { path: 'projects/abcdef123456/MEMORY.md', text: '# project log\nfact\n', truncated: false, bytes: 20 },
+    daily: [
+      { date: '2026-11-12', path: 'daily/2026-11-12.md', text: 'daily entry\n', truncated: false, bytes: 13 },
+    ],
+    fileCount: 2,
+    bytes: 33,
+    truncated: false,
+  })
   const orchestrator = new Orchestrator({
     client,
     instance,
     state,
     router,
     config,
+    memoryReader,
     sidecarSource,
     sessionReader: async (sessionId) => ({
       events: [
@@ -101,6 +115,16 @@ test('full handoff: create box, transfer, verify, agent ack, delegated', async (
   const loaded = await state.load('session-e2e-1')
   assert.equal(loaded.phase, 'delegated')
   assert.equal(loaded.originalRoute.provider, 'unknown')
+  // The chat memory capture is summarized into state and confirmed by the box verifier.
+  assert.deepEqual(loaded.memory, {
+    projectKey: 'abcdef123456',
+    dailyCount: 1,
+    fileCount: 2,
+    bytes: 33,
+    truncated: false,
+  })
+  assert.equal(loaded.ack.schemaValid, true, 'box verifier accepted the payload with a memory section')
+  assert.equal(loaded.ack.memoryFileCount, 2, 'box verifier counted the memory files it received')
 })
 
 test('subsequent messages route to box and replies are cached', async () => {

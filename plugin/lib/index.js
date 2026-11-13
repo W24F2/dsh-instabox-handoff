@@ -68,6 +68,9 @@ export const Config = {
         maxPayloadBytes: { type: 'number', default: 33554432 },
         transferImages: { type: 'boolean', default: true },
         redactMessageText: { type: 'boolean', default: true },
+        includeMemory: { type: 'boolean', default: true },
+        memoryDailyDays: { type: 'number', default: 7 },
+        maxMemoryBytes: { type: 'number', default: 2097152 },
         reason: { type: 'string' },
       },
     },
@@ -105,7 +108,7 @@ const SIDECAR_PATH = join(__dirname, '..', 'box-side', 'verify.mjs')
  * @param {object} ctx - Cordis context
  * @param {object} rawConfig - plugin config
  */
-export function apply(ctx, rawConfig = {}) {
+export async function apply(ctx, rawConfig = {}) {
   const config = normalizeConfig(rawConfig)
   if (!config.enabled) {
     ctx.logger?.info?.('[instabox-bridge] disabled by config')
@@ -235,7 +238,7 @@ export function apply(ctx, rawConfig = {}) {
   const toolDefs = [
     {
       name: 'instabox_handoff',
-      description: 'Hand the current conversation off to a persistent InstaBox-hosted agent. The box receives the full context and takes over subsequent messages until reclaimed.',
+      description: 'Send this chat\'s memory to a persistent InstaBox-hosted agent: the full conversation transcript, the durable project memory log and recent daily journal entries, the task/execution state and the tool list. The box takes over subsequent messages until reclaimed.',
       parameters: {
         type: 'object',
         properties: {
@@ -260,7 +263,7 @@ export function apply(ctx, rawConfig = {}) {
             phase: result.phase,
             box: result.box?.name,
             conversationId: result.conversationId,
-            message: `Conversation handed off to InstaBox box "${result.box?.name}". Subsequent messages will be handled by the box agent.`,
+            message: `Chat memory sent to InstaBox box "${result.box?.name}". Subsequent messages will be handled by the box agent.`,
           }
         } catch (error) {
           return { error: error?.message ?? String(error), code: error?.code }
@@ -335,13 +338,15 @@ export function apply(ctx, rawConfig = {}) {
   const commands = [
     {
       name: 'handoff',
-      description: 'Hand this conversation off to an InstaBox agent',
+      description: 'Send this chat\'s memory (conversation + project memory + daily log) to an InstaBox agent',
       input: { hint: '[reason]' },
       handler: async (invocation) => {
         const sessionId = String(invocation.agent?.id ?? '')
         try {
           const result = await orchestrator.handoff(sessionId, { reason: invocation.rawInput?.trim() || undefined })
-          return { kind: 'success', text: `Handoff complete → box "${result.box?.name}" (conversation ${result.conversationId ?? 'new'})` }
+          const mem = result.memory
+          const detail = mem ? `, ${mem.fileCount} memory file(s)` : ', no memory files'
+          return { kind: 'success', text: `Chat memory sent → box "${result.box?.name}" (conversation ${result.conversationId ?? 'new'}${detail})` }
         } catch (error) {
           return { kind: 'error', text: `Handoff failed: ${error?.message ?? error}` }
         }

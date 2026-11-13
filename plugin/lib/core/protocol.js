@@ -69,6 +69,7 @@ export function createPayload(parts) {
     tools: parts.tools ?? [],
     permissions: parts.permissions ?? { toolNames: [], note: 'approval policy is host-side and not enumerable' },
     attachments: parts.attachments ?? [],
+    ...(parts.memory ? { memory: parts.memory } : {}),
     reason: parts.reason ?? 'explicit handoff',
     redactions: parts.redactions ?? [],
   }
@@ -219,8 +220,41 @@ export function assertPayload(payload, options = {}) {
     if (execution.status !== 'open' && execution.status !== 'idle') fail('$.execution.status: expected "open" or "idle"')
   }
 
-  if (!Array.isArray(payload.tools)) fail('$.tools: expected an array')
-  else {
+  const memory = payload.memory
+  if (memory !== undefined && memory !== null) {
+    if (!isObject(memory)) fail('$.memory: expected an object')
+    else {
+      if (!isFiniteInteger(memory.capturedAt)) fail('$.memory.capturedAt: expected epoch milliseconds')
+      if (typeof memory.projectPath !== 'string') fail('$.memory.projectPath: expected a string')
+      if (typeof memory.projectKey !== 'string' || !/^[0-9a-f]{12}$/.test(memory.projectKey)) {
+        fail('$.memory.projectKey: expected the 12-hex project memory key')
+      }
+      const checkFile = (entry, path) => {
+        if (!isObject(entry)) return fail(`${path}: expected an object`)
+        if (typeof entry.path !== 'string' || entry.path.length === 0) fail(`${path}.path: expected a relative path`)
+        if (typeof entry.text !== 'string') fail(`${path}.text: expected a string`)
+        if (typeof entry.truncated !== 'boolean') fail(`${path}.truncated: expected a boolean`)
+        if (!isFiniteInteger(entry.bytes) || entry.bytes < 0) fail(`${path}.bytes: expected a non-negative integer`)
+      }
+      if (memory.project !== null && memory.project !== undefined) checkFile(memory.project, '$.memory.project')
+      if (!Array.isArray(memory.daily)) fail('$.memory.daily: expected an array')
+      else {
+        memory.daily.forEach((entry, index) => {
+          checkFile(entry, `$.memory.daily[${index}]`)
+          if (isObject(entry) && !/^\d{4}-\d{2}-\d{2}$/.test(String(entry.date))) {
+            fail(`$.memory.daily[${index}].date: expected YYYY-MM-DD`)
+          }
+        })
+      }
+      if (!isFiniteInteger(memory.fileCount) || memory.fileCount < 0) fail('$.memory.fileCount: expected a non-negative integer')
+      if (!isFiniteInteger(memory.bytes) || memory.bytes < 0) fail('$.memory.bytes: expected a non-negative integer')
+      if (typeof memory.truncated !== 'boolean') fail('$.memory.truncated: expected a boolean')
+    }
+  }
+
+  if (!Array.isArray(payload.tools)) {
+    fail('$.tools: expected an array')
+  } else {
     for (const [index, tool] of payload.tools.entries()) {
       if (!isObject(tool) || typeof tool.name !== 'string' || typeof tool.description !== 'string' || !isObject(tool.parameters)) {
         fail(`$.tools[${index}]: expected name, description and a parameters object`)

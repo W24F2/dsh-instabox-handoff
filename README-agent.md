@@ -26,6 +26,7 @@ pnpm run build
 
 ## Features
 
+- ✅ Sends the current chat memory: full transcript **plus** the durable project memory log and recent daily journal entries
 - ✅ Full conversation handoff with context preservation
 - ✅ Bidirectional message routing while delegated
 - ✅ Control reclamation from InstaBox to DeepSeek
